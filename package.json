@@ -15,7 +15,8 @@
     "@sap/cds-dk": "^7.3.1"
   },
   "scripts": {
-    "start": "cds-serve"
+    "start": "cds-serve",
+    "deploy": "cds deploy -2 hana:CAPAPP_YT_HDI"
   },
   "cds": {
     "build": {
