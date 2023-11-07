@@ -23,14 +23,31 @@ modules:
           srv-url: ${default-url}
     requires:
       - name: CAPAPP_YT-db
+      - name: CAPAPP_YT-auth
 
   - name: CAPAPP_YT-db-deployer
     type: hdb
-    path: db  # gen/db
+    path: db # gen/db
     parameters:
       buildpack: nodejs_buildpack
     requires:
       - name: CAPAPP_YT-db
+
+  - name: CAPAPP_YT
+    type: approuter.nodejs
+    path: app/
+    parameters:
+      keep-existing-routes: true
+      disk-quota: 256M
+      memory: 256M
+    requires:
+      - name: srv-api
+        group: destinations
+        properties:
+          name: srv-api # must be used in xs-app.json as well
+          url: ~{srv-url}
+          forwardAuthToken: true
+      - name: CAPAPP_YT-auth
 
 resources:
   - name: CAPAPP_YT-db
@@ -38,3 +55,12 @@ resources:
     parameters:
       service: hana
       service-plan: hdi-shared
+  - name: CAPAPP_YT-auth
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: xsuaa
+      service-plan: application
+      path: ./xs-security.json
+      config:
+        xsappname: CAPAPP_YT-${org}-${space}
+        tenant-mode: dedicated
